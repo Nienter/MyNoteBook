@@ -1540,8 +1540,10 @@ java泛型有个缺点把一个对象丢进去之后集合就会忘记对象类�
 
   try catch finally（回收物理资源），try出现，catch和finally只要要出现一个。
 
-  throws 放在方法签名，意思是将异常抛给上一层。
+  try（这里面可以放回收的资源的定义，会自动回收）{}
 
+  throws 放在方法签名，意思是将异常抛给上一层。
+  
   throw 手动抛出异常，进入catch中
 
 #  注解
@@ -1553,12 +1555,118 @@ java泛型有个缺点把一个对象丢进去之后集合就会忘记对象类�
 # IO
 
 - file
+
 - InputStream/Reader
+
 - OutPutStream/Writer
+
+- InputStreamReader/OutPutStreamWriter  转换流
+
+- RandomAccessFile  可以跳转到文件的任意位置读写数据
+
+- 递归序列化  引用的变量也会被序列化
+
+- Buffer    NIO
+
+  ```java
+  CharBuffer charBuffer = CharBuffer.allocate(9);
+          charBuffer.put("a");
+          charBuffer.put("b");
+          charBuffer.put("C");
+          charBuffer.flip();
+          System.out.println(charBuffer.get(6));
+  
+  ```
+  
+- Channel 映射成Buffer   NIO  
+
+- 文件锁 FileLock 防止并发访问
+
+- FileVisitor 遍历文件和目录
+
+- WatchService 监控文件变化
 
 # 多线程
 
+- 进程
 
+  - 独立性。进程是系统独立存在的实体，拥有自己独立的资源，每一个进程都拥有自己独立的地址空间。在没有进程本身的允许下，一个用户进程不能访问其他的地址空间
+
+  - 动态性。进程与程序最大的区别在于。程序只是一个静态的指令集和，而进程是一个正在系统中活动的指令集和，在进程中加入了时间的概念。进程具有自己的生命周期和各种不同的状态，这些概念是程序不具备的。
+
+  - 并发性。多个进程可以在单个处理器并发执行，多个进程间不会影响。
+  
+- 并发和并行 
+  - 并行是指在同一时刻，有多条指令在多个处理器上同时执行
+  - 并发在指在同一时刻只有一条指令执行，但多个进程指令被快速轮换执行，使得宏观上具有多个进程同时执行的效果
+  
+- 多线程  与其他线程共享父进程的共享变量及部分环境。拥有自己的堆栈自己的程序计数器和自己的局部变量，但不拥有系统资源它与父进程的其他线程共享该进程的全部资源。线程的执行是抢占式的，也就是说当前的线程可以随时挂起，以便另一个线程可以运行。
+
+- 线程的创建
+  - 继承Thread
+  
+  - 实现Runnable接口
+  
+  - 使用Callable和Future创建线程  Call方法可以作为线程执行体，但call方法比run方法更强大，可以有返回值，可以抛出异常
+  
+    ```java
+     FutureTask<Integer> task = new FutureTask<>(new Callable<Integer>() {
+                @Override
+                public Integer call() throws Exception {
+                    return null;
+                }
+            });
+            new Thread(task, "ds").start();
+    ```
+  
+    
+  
+- 线程的生命周期 新建 就绪 运行 阻塞 死亡。
+  
+  - 新建和就绪状态  new 创建之后就处于新建状态，调用了start之后就处于就绪状态，至于何时开始运行，取决于JVM里线程调度器和调度。
+  
+- 运行和阻塞状态  开始执行run方法体就进入了运行状态，
+
+  抢占式策略，系统考虑线程优先级，当发生以下情况时就进入阻塞状态
+
+  - 线程调用sleep（）方法主动放弃所占用的处理器资源
+
+  - 线程调用了一个阻塞式IO方法，在该方法返回之前，该线程被阻塞。
+
+  - 线程获得一个同步监视器，但该同步监视器正被其他线程持有，
+
+  - 线程在等待某个通知 notify
+
+  - 程序调用了线程的suspend（）方法将该线程挂起，但这个方法容易导致死锁，应该避免使用。
+
+    针对上面几种情况，发生如下几种情况可以解除上面的阻塞，让线程进入就绪状态
+
+    - 调用sleep 方法的线程过了指定的时间
+
+    - 线程调用的阻塞式IO已经返回
+
+    - 线程成功获得了同步监视器
+
+    - 其他线程发出了一个通知
+
+    - 处于挂起状态的线程调用了resume恢复方法
+
+- 线程死亡
+
+  run或call方法执行完成，线程正常结束
+
+  线程抛出一个未捕获的exception或error
+
+  直接调用该线程的stop方法来结束该线程-该方法容易导致死锁
+
+- 控制线程
+
+  - join 线程  一个线程等待另一个线程完成的方法--join方法
+
+  - sleep
+  - 后台线程  Dameon线程
+  - 线程让步 yield
+  - 改变线程优先级
 
 # 网络编程
 
